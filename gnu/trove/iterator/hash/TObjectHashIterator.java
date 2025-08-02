@@ -1,0 +1,62 @@
+/*    */ package gnu.trove.iterator.hash;
+/*    */ 
+/*    */ import gnu.trove.impl.hash.THashIterator;
+/*    */ import gnu.trove.impl.hash.TObjectHash;
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ 
+/*    */ public class TObjectHashIterator<E>
+/*    */   extends THashIterator<E>
+/*    */ {
+/*    */   protected final TObjectHash _objectHash;
+/*    */   
+/*    */   public TObjectHashIterator(TObjectHash<E> hash) {
+/* 43 */     super(hash);
+/* 44 */     this._objectHash = hash;
+/*    */   }
+/*    */ 
+/*    */ 
+/*    */   
+/*    */   protected E objectAtIndex(int index) {
+/* 50 */     Object obj = this._objectHash._set[index];
+/* 51 */     if (obj == TObjectHash.FREE || obj == TObjectHash.REMOVED) {
+/* 52 */       return null;
+/*    */     }
+/* 54 */     return (E)obj;
+/*    */   }
+/*    */ }
+
+
+/* Location:              D:\Minecraft 伺服器資料\Pika&Jartex\PolarCommon-1.3.5-20230128.224209-66-LEAKED.jar!\gnu\trove\iterator\hash\TObjectHashIterator.class
+ * Java compiler version: 6 (50.0)
+ * JD-Core Version:       1.1.3
+ */

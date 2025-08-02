@@ -1,0 +1,383 @@
+/*     */ package org.apache.commons.lang3.concurrent.locks;
+/*     */ 
+/*     */ import java.util.Objects;
+/*     */ import java.util.concurrent.locks.Lock;
+/*     */ import java.util.concurrent.locks.ReadWriteLock;
+/*     */ import java.util.concurrent.locks.ReentrantReadWriteLock;
+/*     */ import java.util.concurrent.locks.StampedLock;
+/*     */ import java.util.function.Supplier;
+/*     */ import org.apache.commons.lang3.function.Failable;
+/*     */ import org.apache.commons.lang3.function.FailableConsumer;
+/*     */ import org.apache.commons.lang3.function.FailableFunction;
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ public class LockingVisitors
+/*     */ {
+/*     */   public static class LockVisitor<O, L>
+/*     */   {
+/*     */     private final L lock;
+/*     */     private final O object;
+/*     */     private final Supplier<Lock> readLockSupplier;
+/*     */     private final Supplier<Lock> writeLockSupplier;
+/*     */     
+/*     */     protected LockVisitor(O object, L lock, Supplier<Lock> readLockSupplier, Supplier<Lock> writeLockSupplier) {
+/* 122 */       this.object = Objects.requireNonNull(object, "object");
+/* 123 */       this.lock = Objects.requireNonNull(lock, "lock");
+/* 124 */       this.readLockSupplier = Objects.<Supplier<Lock>>requireNonNull(readLockSupplier, "readLockSupplier");
+/* 125 */       this.writeLockSupplier = Objects.<Supplier<Lock>>requireNonNull(writeLockSupplier, "writeLockSupplier");
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     public void acceptReadLocked(FailableConsumer<O, ?> consumer) {
+/* 147 */       lockAcceptUnlock(this.readLockSupplier, consumer);
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     public void acceptWriteLocked(FailableConsumer<O, ?> consumer) {
+/* 169 */       lockAcceptUnlock(this.writeLockSupplier, consumer);
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     public <T> T applyReadLocked(FailableFunction<O, T, ?> function) {
+/* 209 */       return lockApplyUnlock(this.readLockSupplier, function);
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     public <T> T applyWriteLocked(FailableFunction<O, T, ?> function) {
+/* 237 */       return lockApplyUnlock(this.writeLockSupplier, function);
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     public L getLock() {
+/* 246 */       return this.lock;
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     public O getObject() {
+/* 255 */       return this.object;
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     protected void lockAcceptUnlock(Supplier<Lock> lockSupplier, FailableConsumer<O, ?> consumer) {
+/* 270 */       Lock lock = lockSupplier.get();
+/* 271 */       lock.lock();
+/*     */       try {
+/* 273 */         consumer.accept(this.object);
+/* 274 */       } catch (Throwable t) {
+/* 275 */         throw Failable.rethrow(t);
+/*     */       } finally {
+/* 277 */         lock.unlock();
+/*     */       } 
+/*     */     }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */     
+/*     */     protected <T> T lockApplyUnlock(Supplier<Lock> lockSupplier, FailableFunction<O, T, ?> function) {
+/* 297 */       Lock lock = lockSupplier.get();
+/* 298 */       lock.lock();
+/*     */       try {
+/* 300 */         return (T)function.apply(this.object);
+/* 301 */       } catch (Throwable t) {
+/* 302 */         throw Failable.rethrow(t);
+/*     */       } finally {
+/* 304 */         lock.unlock();
+/*     */       } 
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static class ReadWriteLockVisitor<O>
+/*     */     extends LockVisitor<O, ReadWriteLock>
+/*     */   {
+/*     */     protected ReadWriteLockVisitor(O object, ReadWriteLock readWriteLock) {
+/* 329 */       super(object, readWriteLock, readWriteLock::readLock, readWriteLock::writeLock);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static class StampedLockVisitor<O>
+/*     */     extends LockVisitor<O, StampedLock>
+/*     */   {
+/*     */     protected StampedLockVisitor(O object, StampedLock stampedLock) {
+/* 352 */       super(object, stampedLock, stampedLock::asReadLock, stampedLock::asWriteLock);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static <O> ReadWriteLockVisitor<O> reentrantReadWriteLockVisitor(O object) {
+/* 364 */     return new ReadWriteLockVisitor<>(object, new ReentrantReadWriteLock());
+/*     */   }
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */ 
+/*     */   
+/*     */   public static <O> StampedLockVisitor<O> stampedLockVisitor(O object) {
+/* 375 */     return new StampedLockVisitor<>(object, new StampedLock());
+/*     */   }
+/*     */ }
+
+
+/* Location:              D:\Minecraft 伺服器資料\Pika&Jartex\PolarCommon-1.3.5-20230128.224209-66-LEAKED.jar!\org\apache\commons\lang3\concurrent\locks\LockingVisitors.class
+ * Java compiler version: 8 (52.0)
+ * JD-Core Version:       1.1.3
+ */
